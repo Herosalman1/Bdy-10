@@ -2,8 +2,9 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Birthday Link Generator</title>
+  <!-- FORCED DESKTOP VIEW ON MOBILE (985px width as per rules) -->
+  <meta name="viewport" content="width=985">
+  <title>Surprise Link Generator</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; }
@@ -181,10 +182,9 @@
       navigator.clipboard.writeText(finalGeneratedUrl).then(() => alert("Link Copied Successfully!"));
     }
 
-    /* Changed to open normally in a new tab instead of a specific resolution popup */
     function previewLink() {
       if(!finalGeneratedUrl) return;
-      window.open(finalGeneratedUrl, '_blank'); 
+      window.open(finalGeneratedUrl, '_blank');
     }
   </script>
 </body>
