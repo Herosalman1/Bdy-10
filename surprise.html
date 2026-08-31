@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <script>
+    /* Mobile Viewport locked exactly at 985px */
     if (/Mobi|Android/i.test(navigator.userAgent)) {
-      document.write('<meta name="viewport" content="width=1040">');
+      document.write('<meta name="viewport" content="width=985">');
     } else {
       document.write('<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">');
     }
@@ -18,31 +19,50 @@
 
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; -webkit-user-drag: none; }
-    body, html { width: 100%; height: 100%; background-color: #050005; overflow: hidden; font-family: 'Poppins', sans-serif; }
+    
+    /* ADDED min-width to force the body to match the 985px viewport, fixing the left-align issue */
+    body, html { 
+      width: 100%; 
+      height: 100%; 
+      min-width: 985px; 
+      background-color: #050005; 
+      overflow: hidden; 
+      font-family: 'Poppins', sans-serif; 
+    }
+    
     #matrixCanvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; opacity: 0.35; }
     .screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 10; opacity: 0; visibility: hidden; transition: opacity 0.5s ease, visibility 0.5s ease; }
     .screen.active { opacity: 1; visibility: visible; }
+    
     .sequence-text { font-family: 'Orbitron', sans-serif; font-size: 80px; font-weight: 900; color: #ffffff; text-transform: uppercase; text-shadow: 0 0 15px #ff007f, 0 0 30px #ff007f, 0 0 50px #ff007f, 0 0 70px #ff007f; text-align: center; opacity: 0; transform: scale(0.5); transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); padding: 0 20px; letter-spacing: 2px; }
     .sequence-text.zoom-in { opacity: 1; transform: scale(1); }
     .sequence-text.zoom-out { opacity: 0; transform: scale(1.5); }
     #s1-text { font-size: 150px; }
+    
     @media (max-width: 600px) { .sequence-text { font-size: 45px; } #s1-text { font-size: 120px; } }
+    
     .neon-frame { position: relative; background: #fff; padding: 6px; border-radius: 16px; border: 3px solid #ff007f; box-shadow: 0 0 25px #ff007f, 0 0 50px rgba(255,0,127,0.4); width: 100%; height: 100%; transition: all 0.4s ease; }
     .neon-frame img { width: 100%; height: 100%; object-fit: cover; border-radius: 10px; display: block; }
+    
     .slider-container { width: 100%; max-width: 900px; height: 450px; overflow: visible; }
     .swiper { width: 100%; padding-top: 50px; padding-bottom: 50px; overflow: visible !important; }
     .swiper-slide { width: 280px; height: 350px; opacity: 0.4; transition: opacity 0.4s ease; border-radius: 16px; overflow: hidden; }
     .swiper-slide .neon-frame { border: 3px solid transparent; box-shadow: none; background: transparent; padding: 0; border-radius: 16px; }
     .swiper-slide-active { opacity: 1; }
     .swiper-slide-active .neon-frame { border: 3px solid #ff007f; box-shadow: 0 0 25px #ff007f, 0 0 50px rgba(255,0,127,0.4); background: #fff; padding: 6px; border-radius: 16px; }
+    
     #next-btn { margin-top: 20px; padding: 12px 35px; background: transparent; border: 2px solid #ff007f; color: #fff; font-family: 'Orbitron', sans-serif; font-size: 18px; font-weight: bold; border-radius: 30px; cursor: pointer; box-shadow: 0 0 15px #ff007f; transition: 0.3s; opacity: 0; pointer-events: none; transform: translateY(20px); }
     #next-btn.show { opacity: 1; pointer-events: all; transform: translateY(0); }
     #next-btn:hover { background: #ff007f; color: #000; box-shadow: 0 0 30px #ff007f; }
+    
     @media (max-width: 600px) { .swiper-slide { width: 220px; height: 280px; } .slider-container { height: 380px; } }
+    
     .gif-container { width: 300px; height: 300px; margin-bottom: 25px; }
     .gif-text { font-family: 'Orbitron', sans-serif; font-size: 24px; font-weight: bold; color: #fff; text-align: center; text-shadow: 0 0 10px #ff007f, 0 0 20px #ff007f; letter-spacing: 1px; }
+    
     .floating-heart { position: absolute; color: #ff007f; opacity: 0.8; animation: floatUp linear infinite; z-index: 5; pointer-events: none; text-shadow: 0 0 10px #ff007f; }
     @keyframes floatUp { 0% { transform: translateY(100vh) scale(0.5) rotate(0deg); opacity: 0.8; } 100% { transform: translateY(-10vh) scale(1.2) rotate(45deg); opacity: 0; } }
+    
     .music-btn { position: fixed; bottom: 20px; right: 20px; width: 50px; height: 50px; background: rgba(0,0,0,0.6); border: 2px solid #ff007f; border-radius: 50%; display: flex; justify-content: center; align-items: center; color: #ff007f; cursor: pointer; z-index: 100; box-shadow: 0 0 15px #ff007f; transition: 0.3s; }
     .music-btn:hover { background: #ff007f; color: #000; }
     .music-btn svg { width: 24px; height: 24px; stroke: currentColor; fill: none; }
@@ -153,9 +173,15 @@
 
     const canvas = document.getElementById('matrixCanvas');
     const ctx = canvas.getContext('2d');
-    function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+    
+    function resizeCanvas() { 
+      /* FIX: Forced the Canvas to match the 985px width to stop matrix cut-off */
+      canvas.width = Math.max(window.innerWidth, 985); 
+      canvas.height = window.innerHeight; 
+    }
     window.addEventListener('resize', resizeCanvas);
     resizeCanvas();
+    
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'.split('');
     const fontSize = 16;
     let columns = canvas.width / fontSize;
