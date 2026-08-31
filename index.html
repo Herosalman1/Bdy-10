@@ -57,8 +57,8 @@
       <div class="full-width"><label>Word 7 (Name)</label><input type="text" id="w7" placeholder="Enter Name..." value="NAME"></div>
 
       <div class="full-width">
-        <h3>6 Photos (Upload from Device - Auto delete in 24 hour)</h3>
-        <p style="font-size: 12px; color: #aaa; margin-top: -5px;">Select photos to upload automatically via ImgBB.</p>
+        <h3>6 Photos (Upload from Device)</h3>
+        <p style="font-size: 12px; color: #aaa; margin-top: -5px;">Apne Fav Imag's Select Kijiye !!</p>
       </div>
       
       <div><label>Photo 1</label><input type="file" accept="image/*" onchange="uploadImage(this, 0)"><span class="status" id="status0"></span></div>
@@ -131,7 +131,7 @@
         if (data.success) {
           uploadedImages[index] = data.data.url;
           statusEl.style.color = "#00ff00";
-          statusEl.innerText = "✅ Uploaded! (Deletes in 24 hour)";
+          statusEl.innerText = "✅ Photo Uploaded Done !";
         } else {
           statusEl.style.color = "red";
           statusEl.innerText = "❌ Failed. Try again.";
