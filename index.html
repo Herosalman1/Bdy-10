@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Surprise Link Generator</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      background-color: #050005; color: #fff; font-family: 'Poppins', sans-serif;
+      margin: 0; padding: 40px 20px; display: flex; justify-content: center;
+    }
+    .container {
+      background: rgba(255, 0, 127, 0.05); border: 2px solid #ff007f;
+      border-radius: 16px; box-shadow: 0 0 20px rgba(255,0,127,0.3);
+      padding: 30px; max-width: 800px; width: 100%;
+    }
+    h2 { text-align: center; color: #ff007f; text-shadow: 0 0 10px #ff007f; margin-top: 0; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px; }
+    .full-width { grid-column: span 2; }
+    @media (max-width: 600px) { .grid { grid-template-columns: 1fr; } .full-width { grid-column: span 1; } }
+    label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 14px; }
+    input[type="text"], input[type="file"] {
+      width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ff007f;
+      background: #111; color: #fff; font-family: 'Poppins', sans-serif; outline: none;
+    }
+    input:focus { box-shadow: 0 0 10px #ff007f; }
+    h3 { margin-bottom: 10px; border-bottom: 1px solid #ff007f; padding-bottom: 5px; color: #ff007f; }
+    button {
+      width: 100%; padding: 15px; background: #ff007f; color: #000; font-weight: bold; font-size: 16px;
+      border: none; border-radius: 30px; cursor: pointer; box-shadow: 0 0 15px #ff007f; transition: 0.3s;
+    }
+    button:hover { background: #fff; box-shadow: 0 0 25px #fff; }
+    .status { font-size: 12px; margin-top: 5px; display: block; font-weight: bold; }
+    #outputSection { display: none; margin-top: 30px; padding-top: 20px; border-top: 2px dashed #ff007f; text-align: center; }
+    .action-btns { display: flex; gap: 15px; justify-content: center; margin-top: 15px; }
+    .btn-outline { background: transparent; border: 2px solid #ff007f; color: #ff007f; width: auto; padding: 10px 25px; }
+    .btn-outline:hover { background: #ff007f; color: #000; }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h2>Create Surprise Link</h2>
+    
+    <div class="grid">
+      <div class="full-width"><h3>Sequence Texts (7 Words)</h3></div>
+      <div><label>Word 1</label><input type="text" id="w1" value="HAPPY"></div>
+      <div><label>Word 2</label><input type="text" id="w2" value="BIRTHDAY"></div>
+      <div><label>Word 3</label><input type="text" id="w3" value="TO YOU"></div>
+      <div><label>Word 4</label><input type="text" id="w4" value="MY"></div>
+      <div><label>Word 5</label><input type="text" id="w5" value="DEAR"></div>
+      <div><label>Word 6</label><input type="text" id="w6" value="FRIEND"></div>
+      <div class="full-width"><label>Word 7 (Name)</label><input type="text" id="w7" placeholder="Enter Name..." value="NAME"></div>
+
+      <div class="full-width">
+        <h3>6 Photos (Upload from Device - Auto delete in 3 days)</h3>
+        <p style="font-size: 12px; color: #aaa; margin-top: -5px;">Select photos to upload automatically via ImgBB.</p>
+      </div>
+      
+      <div><label>Photo 1</label><input type="file" accept="image/*" onchange="uploadImage(this, 0)"><span class="status" id="status0"></span></div>
+      <div><label>Photo 2</label><input type="file" accept="image/*" onchange="uploadImage(this, 1)"><span class="status" id="status1"></span></div>
+      <div><label>Photo 3</label><input type="file" accept="image/*" onchange="uploadImage(this, 2)"><span class="status" id="status2"></span></div>
+      <div><label>Photo 4</label><input type="file" accept="image/*" onchange="uploadImage(this, 3)"><span class="status" id="status3"></span></div>
+      <div><label>Photo 5</label><input type="file" accept="image/*" onchange="uploadImage(this, 4)"><span class="status" id="status4"></span></div>
+      <div><label>Photo 6</label><input type="file" accept="image/*" onchange="uploadImage(this, 5)"><span class="status" id="status5"></span></div>
+
+      <div class="full-width"><h3>Final Screen</h3></div>
+      <div class="full-width">
+        <label>Final Text / Wish (Supports Emojis)</label>
+        <input type="text" id="fMsg" value="Happy Birthday My FRIEND ❤️">
+      </div>
+    </div>
+
+    <button onclick="generateLink()">Generate Link</button>
+
+    <div id="outputSection">
+      <h3 style="border:none; margin:0;">Success! Link Created</h3>
+      <div class="action-btns">
+        <button class="btn-outline" onclick="copyLink()">Copy Link</button>
+        <button class="btn-outline" onclick="previewLink()">Click To Preview</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const IMGBB_API_KEY = "d90349d5e7fac59ffa9b3f7a157221c5";
+
+    let uploadedImages = [
+      "https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=500&q=80",
+      "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=500&q=80",
+      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=500&q=80",
+      "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=500&q=80",
+      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=500&q=80",
+      "https://images.unsplash.com/photo-1520813792240-56fc4a3765a7?w=500&q=80"
+    ];
+
+    document.addEventListener("contextmenu", (e) => e.preventDefault());
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "F12" || (e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "J" || e.key === "C")) || (e.ctrlKey && e.key === "U")) {
+        e.preventDefault();
+        window.location.replace("/");
+      }
+    });
+    setInterval(function () {
+      (function () { return false; }["constructor"]("debugger")["call"]());
+    }, 50);
+
+    async function uploadImage(input, index) {
+      const file = input.files[0];
+      if (!file) return;
+
+      const statusEl = document.getElementById("status" + index);
+      statusEl.style.color = "#ff007f";
+      statusEl.innerText = "⏳ Uploading...";
+
+      const formData = new FormData();
+      formData.append("image", file);
+      formData.append("expiration", 259200); // 3 days expiration
+
+      try {
+        const response = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
+          method: "POST",
+          body: formData
+        });
+        const data = await response.json();
+        
+        if (data.success) {
+          uploadedImages[index] = data.data.url;
+          statusEl.style.color = "#00ff00";
+          statusEl.innerText = "✅ Uploaded! (Deletes in 3 days)";
+        } else {
+          statusEl.style.color = "red";
+          statusEl.innerText = "❌ Failed. Try again.";
+        }
+      } catch (error) {
+        statusEl.style.color = "red";
+        statusEl.innerText = "❌ Network Error.";
+      }
+    }
+
+    function encodeData(str) {
+      let encoded = [];
+      for (let i = 0; i < str.length; i++) {
+        encoded.push(str.charCodeAt(i));
+      }
+      return encoded.join('-');
+    }
+
+    let finalGeneratedUrl = "";
+    function generateLink() {
+      const name = document.getElementById('w7').value || "NAME";
+      const dataObj = {
+        w: [
+          document.getElementById('w1').value || "HAPPY",
+          document.getElementById('w2').value || "BIRTHDAY",
+          document.getElementById('w3').value || "TO YOU",
+          document.getElementById('w4').value || "MY",
+          document.getElementById('w5').value || "DEAR",
+          document.getElementById('w6').value || "FRIEND"
+        ],
+        i: uploadedImages,
+        f: document.getElementById('fMsg').value || "Happy Birthday My FRIEND ❤️"
+      };
+
+      const encodedName = encodeData(name);
+      const encodedJSON = encodeData(JSON.stringify(dataObj));
+
+      localStorage.setItem('surp_name', encodedName);
+      localStorage.setItem('surp_data', encodedJSON);
+
+      const baseUrl = window.location.href.replace('index.html', '').replace(/\/$/, '') + '/surprise.html';
+      finalGeneratedUrl = `${baseUrl}?name=${encodedName}#d=${encodedJSON}`;
+
+      document.getElementById('outputSection').style.display = 'block';
+    }
+
+    function copyLink() {
+      if(!finalGeneratedUrl) return;
+      navigator.clipboard.writeText(finalGeneratedUrl).then(() => alert("Link Copied Successfully!"));
+    }
+
+    function previewLink() {
+      if(!finalGeneratedUrl) return;
+      window.open(finalGeneratedUrl, 'Preview', 'width=1440,height=750,top=' + ((screen.height - 750)/2) + ',left=' + ((screen.width - 1440)/2));
+    }
+  </script>
+</body>
+</html>
