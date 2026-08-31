@@ -181,9 +181,10 @@
       navigator.clipboard.writeText(finalGeneratedUrl).then(() => alert("Link Copied Successfully!"));
     }
 
+    /* Changed to open normally in a new tab instead of a specific resolution popup */
     function previewLink() {
       if(!finalGeneratedUrl) return;
-      window.open(finalGeneratedUrl, 'Preview', 'width=1440,height=750,top=' + ((screen.height - 750)/2) + ',left=' + ((screen.width - 1440)/2));
+      window.open(finalGeneratedUrl, '_blank'); 
     }
   </script>
 </body>
